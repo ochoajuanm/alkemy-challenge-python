@@ -1,4 +1,3 @@
-from sqlite3 import OperationalError
 from sqlalchemy.sql.expression import text
 from db_connection import get_engine_from_settings
 from sqlalchemy.exc import SQLAlchemyError

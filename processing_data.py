@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 from get_data import year_month, day_month_year
 from categories_url import categories_urls
 
@@ -171,7 +170,10 @@ def summary_tables_cinema():
 if __name__ == '__main__':
 
     df_total = total_data_processed()
+    df_total.to_csv('temp_data/total_table.csv', index=False, encoding='utf-8')
     if df_total is not None:
         df_total_summary_table = summary_tables_total(df_total)
+        df_total_summary_table.to_csv('temp_data/df_total_summary_table.csv', index=False, encoding='utf-8')
     if os.path.exists(path_file_cinema) == True:
         df_cinema_summary_table = summary_tables_cinema()
+        df_cinema_summary_table.to_csv('temp_data/df_cinema_summary_table.csv', index=False, encoding='utf-8')
