@@ -2,10 +2,14 @@ from decouple import config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
-# from local_settings import postgresql as settings
 from sqlalchemy.sql import text
 
 def get_engine(user, passwd, host, port, db):
+
+    """
+        Recibe variables de entorno de postgres para crear el motor. Crea la BD en caso de que no exista
+    """
+
     url = f'postgresql://{user}:{passwd}@{host}:{port}/{db}'
     if not database_exists(url):
         create_database(url)
@@ -14,10 +18,10 @@ def get_engine(user, passwd, host, port, db):
     return engine
 
 def get_engine_from_settings():
-    # keys = ['POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_DB']
-    
-    # if not all(key in keys for key in config.keys()):
-    #     raise Exception('Bad config file')
+
+    """
+        Configuración de la conexión a la BD con variables de entorno
+    """
 
     return get_engine(config('POSTGRES_USER'),
                     config('POSTGRES_PASSWORD'),
@@ -26,6 +30,10 @@ def get_engine_from_settings():
                     config('POSTGRES_DB'))
 
 def get_session():
+
+    """
+        Genera una sesión a partir del motor obtenido
+    """
     engine = get_engine_from_settings()
     session = sessionmaker(bind=engine)()
     return session
