@@ -1,0 +1,1 @@
+requests locale datetime pandas sqlalchemy sqlalchemy-utils decouple
