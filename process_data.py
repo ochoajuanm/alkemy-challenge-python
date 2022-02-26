@@ -1,48 +1,9 @@
+import logging
 import os
 import pandas as pd
-from get_data import year_month, day_month_year
-from categories_url import categories_urls
+from utils import fix_columns, main_logger, path_file_cinema, path_file_library, path_file_museum, categories_urls, reduced_columns, year_month, day_month_year
 
-path_file_cinema = f'categorias/salas-de-cine/{year_month}/salas-de-cine-{day_month_year}.csv'
-# total_table, summary_table, cinema_summary_table = None, None, None
-
-def replace_special_characters(list):
-
-    """
-        Función que recibe una lista y transforma los caracteres de sus ítems:
-        - Con tilde a sin tilde
-        - Espacio por guión bajo
-        - ñ por ni
-    """
-
-    dict = {'á': 'a', 'é':'e', 'í': 'i', 'ó': 'o', 'ú': 'u', ' ': '_', 'ñ': 'ni'}
-
-    fixed_list = []
-    for item in list:
-        transTable = item.maketrans(dict)
-        fixed_item = item.translate(transTable)
-        fixed_list.append(fixed_item)
-    
-    return fixed_list
-
-
-def fix_columns(df):
-
-    """
-        Función que estandariza los nombres de columnas para dataframe. Transforma a minúsculas, sin tildes y sin espacios
-    """
-    columns_lower = [i.lower() for i in df.columns]
-    columns_lower = replace_special_characters(columns_lower)
-    dict_columns = dict(zip(df.columns, columns_lower))
-    df.rename(columns=dict_columns, inplace=True)
-
-    try:
-        df.rename(columns={'domicilio': 'direccion'}, inplace=True)
-    except KeyError:
-        pass
-        
-    return df
-
+logger = logging.getLogger("").getChild(__name__)
 
 def total_data_processed():
 
@@ -50,23 +11,10 @@ def total_data_processed():
         Procesa los csv de cada categoría en uno solo y descarta columnas no utilizadas
     """
 
-    reduced_columns = ['cod_loc',
-                        'idprovincia',
-                        'iddepartamento',
-                        'categoria',
-                        'provincia',
-                        'localidad',
-                        'nombre',
-                        'direccion',
-                        # 'cp',
-                        'telefono',
-                        'mail',
-                        'fuente']
-
     df_total = pd.DataFrame(columns=reduced_columns)
 
     try:
-        for category, url in categories_urls.items():
+        for category in categories_urls.keys():
             path_file = f'categorias/{category}/{year_month}/{category}-{day_month_year}.csv'
             df_processed = pd.read_csv(path_file, encoding='utf-8')
             fix_columns(df_processed)
@@ -77,11 +25,13 @@ def total_data_processed():
                                         'Santa Fé': 'Santa Fe',
                                         'Tierra del Fuego': 'Tierra del Fuego, Antártida e Islas del Atlántico Sur'
                                         }, inplace=True)
+
+    
         
     except FileNotFoundError:
-        print(f'No se pudo leer el archivo en la ruta {path_file}')
+        logger.error(f'No se pudo leer el archivo en la ruta {path_file}')
     else:
-        print('Se procesó el archivo de todas las categorías en una tabla correctamente ')
+        logger.info('Se procesó el archivo de todas las categorías en una tabla correctamente ')
         return df_total
 
 
@@ -129,13 +79,12 @@ def summary_tables_total(df=None):
             total = total[['tipo_agrupacion', 'descripcion', 'total']]
 
     except ValueError:
-        print("No existe DataFrame del total de la información")
+        logger.error("No existe DataFrame del total de la información")
     except TypeError as e:
-        print("No existen datos o no coinciden nombres de columnas")
+        logger.error("No existen datos o no coinciden nombres de columnas")
     else:
-        print('Tabla resumen del total de información generada correctamente')
+        logger.info('Tabla resumen del total de información generada correctamente')
         return total
-
 
 
 def summary_tables_cinema():
@@ -156,24 +105,35 @@ def summary_tables_cinema():
         cinema_summary_table = cinema_summary_table.reset_index()
 
     except FileNotFoundError:
-            print(f'No se pudo leer el archivo en la ruta {path_file_cinema}')
-            print(f'No se generó tabla resumen de cines')
+            logger.error(f'No se pudo leer el archivo en la ruta {path_file_cinema}')
+            logger.error(f'No se generó tabla resumen de cines')
     except KeyError:
-            print('Verifique los nombres de columnas')
-            print(f'No se generó tabla resumen de cines')
+            logger.error('Verifique los nombres de columnas')
+            logger.error(f'No se generó tabla resumen de cines')
 
     else:
-        print('Tabla resumen de cines se ha generado correctamente')
+        logger.info('Tabla resumen de cines se ha generado correctamente')
         return cinema_summary_table
     
 
 if __name__ == '__main__':
 
-    df_total = total_data_processed()
-    df_total.to_csv('temp_data/total_table.csv', index=False, encoding='utf-8')
+    logger = main_logger(__file__)
+
+    if (os.path.exists(path_file_cinema) == True) and (os.path.exists(path_file_museum) == True) and (os.path.exists(path_file_library) == True):
+        df_total = total_data_processed()
+        df_total.to_csv('temp_data/df_total_table.csv', index=False, encoding='utf-8')
+    else:
+        logger.error('Falta alguno de los tres archivos')
+
     if df_total is not None:
         df_total_summary_table = summary_tables_total(df_total)
         df_total_summary_table.to_csv('temp_data/df_total_summary_table.csv', index=False, encoding='utf-8')
+    else:
+        logger.error('No se ha ejecutado la tabla total')
+
     if os.path.exists(path_file_cinema) == True:
         df_cinema_summary_table = summary_tables_cinema()
         df_cinema_summary_table.to_csv('temp_data/df_cinema_summary_table.csv', index=False, encoding='utf-8')
+    else:
+        logger.error('No se encontró el archivo de cine')

@@ -1,11 +1,10 @@
 CREATE TABLE public.summary_table_cinema
 (
-    id integer NOT NULL,
     provincia character varying,
     butacas integer,
     espacio_incaa integer,
     pantallas integer,
-    PRIMARY KEY (id)
+    creado_el timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS public.summary_table_cinema

@@ -1,6 +1,5 @@
 CREATE TABLE public.total_data
 (
-    id integer NOT NULL,
     cod_loc integer,
     idprovincia integer,
     iddepartamento integer,
@@ -12,7 +11,8 @@ CREATE TABLE public.total_data
     telefono character varying,
     mail character varying,
     fuente character varying,
-    PRIMARY KEY (id)
+    web character varying,
+    creado_el timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS public.total_data
