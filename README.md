@@ -1,3 +1,4 @@
+![alkemy](https://www.alkemy.org/static/media/alkemyLogo.2daef856.svg)
 # Challenge Data Analytics - Python
 
 **Autor: Juan Ochoa**
