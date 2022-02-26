@@ -1,6 +1,7 @@
 from datetime import datetime
 import locale
 import logging
+import os
 import pandas as pd
 from sqlalchemy.types import INTEGER, String, TIMESTAMP
 
@@ -126,6 +127,9 @@ def fix_columns(df):
 def main_logger(filename):
 
     """Configuración para el logger dependiendo su nivel de ejecución (root o module name)"""
+
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
 
     logging.basicConfig(
     format = '%(asctime)-5s %(name)-15s %(levelname)-8s %(message)s',
