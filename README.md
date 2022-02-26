@@ -17,7 +17,7 @@ Luego, se debe activar el ambiente virtual:
 
 E instalar los requerimientos con el comando:
 
-    pip install -m requirements.txt
+    pip install -r requirements.txt
 
 Se debe configurar el idioma español ya que, al utilizarse la librería datetime, cuando se generen carpetas y directorios se realizará en inglés por defecto, para ello se debe ejecutar en la consola:
 
